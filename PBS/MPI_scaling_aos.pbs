@@ -1,6 +1,6 @@
 #PBS -N MPI_AoS
-#PBS -o ./Aosbind.txt
-#PBS -e ./Aos.e
+#PBS -o ../PBS/Aos.txt
+#PBS -e ../PBS/Aos.e
 
 #PBS -q shortCPUQ
 #PBS -l walltime=3:00:00
@@ -23,6 +23,7 @@ for NODE in $NODES; do
 done
 
 cd $PBS_O_WORKDIR
+cd ../Source/
 
 export OMP_NUM_THREADS=10
 
