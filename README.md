@@ -1,7 +1,7 @@
 # k-NN_search
 Implementation of distributed k-NN search
 
-All the files needed by the compiler are aviable in the "Source folder".
+All the files needed by the compiler are aviable in the "Source" folder.
 In the MAKEFILE there 3 different policy to compile three different executables.
 
 make sharedMake: gcc -O3 -mavx2 -mfma -fopenmpi shared.c -o shared.o
