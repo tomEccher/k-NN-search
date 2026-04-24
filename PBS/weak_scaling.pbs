@@ -4,7 +4,7 @@
 
 #PBS -q shortCPUQ
 #PBS -l walltime=3:00:00
-#PBS -l select=1:ncpus=10:mem=200gb
+#PBS -l select=1:ncpus=10:mem=100gb
 
 module load OpenMPI/4.1.4-GCC-12.2.0
 
