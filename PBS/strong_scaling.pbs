@@ -1,0 +1,40 @@
+#PBS -N strong_2CPU
+#PBS -o ./strong_scaling.txt
+#PBS -e ./strong_scaling.e
+
+#PBS -q shortCPUQ
+#PBS -l walltime=5:00:00
+#PBS -l select=1:ncpus=24:mem=100gb
+
+module load OpenMPI/4.1.4-GCC-12.2.0
+
+# Print the name of the file that contains the list of the nodes assigned to the job and list all the nodes
+NODES=$(cat $PBS_NODEFILE)
+#echo The running nodes are $NODES
+
+# Get the list of unique nodes assigned to the job
+NODES=$(sort -u $PBS_NODEFILE)
+echo The running nodes are $NODES
+
+#Loop through each node and get architecture information
+for NODE in $NODES; do
+    echo "Node: $NODE"
+    ssh $NODE "lscpu"
+done
+
+cd $PBS_O_WORKDIR
+
+./shared.o 7 1 2500000000 
+./shared.o 7 2 2500000000 
+./shared.o 7 4 2500000000 
+./shared.o 7 6 2500000000 
+./shared.o 7 8 2500000000 
+./shared.o 7 10 2500000000 
+./shared.o 7 12 2500000000 
+./shared.o 7 14 2500000000 
+./shared.o 7 16 2500000000 
+./shared.o 7 18 2500000000 
+./shared.o 7 20 2500000000 
+./shared.o 7 22 2500000000 
+./shared.o 7 24 2500000000 
+./shared.o 7 26 2500000000 
