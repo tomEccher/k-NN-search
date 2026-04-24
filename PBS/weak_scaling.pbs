@@ -1,6 +1,6 @@
 #PBS -N weak_ompavx
-#PBS -o ./weak_scaling.txt
-#PBS -e ./weak_scaling.e
+#PBS -o ../PBS/weak_scaling.txt
+#PBS -e ../PBS/weak_scaling.e
 
 #PBS -q shortCPUQ
 #PBS -l walltime=3:00:00
@@ -23,6 +23,7 @@ for NODE in $NODES; do
 done
 
 cd $PBS_O_WORKDIR
+cd ../Source/
 
 ./shared.o 7 1
 ./shared.o 7 2
