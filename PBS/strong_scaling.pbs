@@ -1,6 +1,6 @@
 #PBS -N strong_2CPU
-#PBS -o ./strong_scaling.txt
-#PBS -e ./strong_scaling.e
+#PBS -o ../PBS/strong_scaling.txt
+#PBS -e ../PBS/strong_scaling.e
 
 #PBS -q shortCPUQ
 #PBS -l walltime=5:00:00
@@ -23,6 +23,7 @@ for NODE in $NODES; do
 done
 
 cd $PBS_O_WORKDIR
+cd ../Source/
 
 ./shared.o 7 1 2500000000 
 ./shared.o 7 2 2500000000 
