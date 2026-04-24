@@ -1,6 +1,6 @@
 #PBS -N MPI_SoA
-#PBS -o ./SoA.txt
-#PBS -e ./SoA.e
+#PBS -o ../PBS/SoA.txt
+#PBS -e ../PBS/SoA.e
 
 #PBS -q shortCPUQ
 #PBS -l walltime=3:00:00
@@ -23,6 +23,7 @@ for NODE in $NODES; do
 done
 
 cd $PBS_O_WORKDIR
+cd ../Source/
 
 export OMP_NUM_THREAD=10
 
