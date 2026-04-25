@@ -6,6 +6,7 @@
 #include "Elementi.h"
 #include "max_heap.h"
 #include "seq_knn.h"
+#include "par_knn.h"
 #include "min_heap.h"
 #include "thread_knn.h"
 #include "omp_knn.h"
@@ -79,24 +80,25 @@ int main(int argc, char **argv)
 	}
 	printf("Tempo di esecuzione migliore %8.8fs, medio %8.8fs\n", best, avg/5);
 
-//        stampa_Vicini(el, vicini.c, k);
+	stampa_Vicini(el, vicini.c, k);
 
 	avg=0; best=10000;
-        printf("\n---Esecuzione AVX---\n");
+    printf("\n---Esecuzione AVX---\n");
 
-        for(int i=0; i<5; ++i){
-                t0=now_sec();
-                vicini=avx_CalcolaVicini(d, 0, n, query, k);
+    for(int i=0; i<5; ++i){
+    	t0=now_sec();
+        vicini=avx_CalcolaVicini(d, 0, n, query, k);
 
-                t1=now_sec();
-                double exec=t1-t0;
-                avg+=exec;
-                best = (best>exec) ? exec: best;
-        }
-        printf("Tempo di esecuzione migliore %8.8fs, medio %8.8fs\n", best, avg/5);
+        t1=now_sec();
+        double exec=t1-t0;
+        avg+=exec;
+        best = (best>exec) ? exec: best;
+    }
+	stampa_ViciniD(d, vicini.c, k);
+    printf("Tempo di esecuzione migliore %8.8fs, medio %8.8fs\n", best, avg/5);
 
-        printf("\n---Esecuzione thread---\n");
-		avg=0; best=10000;
+    printf("\n---Esecuzione thread---\n");
+	avg=0; best=10000;
 	for(int i=0; i<5; ++i){
 		t0=now_sec();
 
@@ -105,10 +107,10 @@ int main(int argc, char **argv)
 		double exec=t1-t0;
 		avg+=exec;
 		best = (best>exec) ? exec: best;
-	        //stampa_Vicini(el, vicini);
+	        
 	}
 	printf("Tempo di esecuzione migliore %8.8fs, medio %8.8fs\n", best, avg/5);
-//	stampa_Vicini(el, vicini);
+	stampa_Vicini(el, vicini.c, k);
 
 	printf("\n---Esecuzione OMP---\n");
 	avg=0; best=1000;
@@ -117,27 +119,25 @@ int main(int argc, char **argv)
 		t0=now_sec();
 	    	vicini= omp_CalcolaVicini(el, n, query, k);
 		t1=now_sec();
-//	stampa_Vicini(el, vicini);
 		double exec=t1-t0;
 		avg+=exec;
 		best = (best>exec) ? exec:best;
 	}
 	printf("Tempo di esecuzione migliore %8.8fs, medio %8.8fs\n", best, avg/5);
-//	stampa_Vicini(el, vicini);
+	stampa_Vicini(el, vicini.c, k);
 
 	printf("\n---Esecuzione THREAD AVX---\n");
-        avg=0; best=1000;
-        for(int i=0; i<5; ++i){
-
-                t0=now_sec();
-                vicini= threadAVX_CalcolaVicini(d, query, k, omp_get_max_threads());
-                t1=now_sec();
+    avg=0; best=1000;
+    for(int i=0; i<5; ++i){
+		t0=now_sec();
+        vicini= threadAVX_CalcolaVicini(d, query, k, omp_get_max_threads());
+        t1=now_sec();
 		double exec=t1-t0;
-                avg+=exec;
-                best = (best>exec) ? exec:best;
-        }
+        avg+=exec;
+        best = (best>exec) ? exec:best;
+    }
         printf("Tempo di esecuzione migliore %8.8fs, medio %8.8fs\n", best, avg/5);
-//	stampa_ViciniD(vicini, d);
+	stampa_ViciniD(d, vicini.c, k);
 
 	free(el); free(d.x); free(d.y); free(d.z); free(d.idx);
 	return 0;
