@@ -40,8 +40,6 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	
-    
 
     Campione* vicini;
     Elementi* el;
@@ -59,17 +57,15 @@ int main(int argc, char **argv)
 	    fprintf(stderr, "Errore inizializzazione data");
     }
 
-	omp_set_num_threads(n_th);
 
 	printf("\n\nESECUZIONE CON %d THREADS SU %lld ELEMENTI\n", n_th, n);
 
-//	stampa_Elementi(el, n);
 
-        stampa_query(query);
+    stampa_query(query);
 
 	double t0, t1, best=10000, avg=0;
 
-        printf("\n---Esecuzione lineare---\n");
+    printf("\n---Esecuzione lineare---\n");
 
 	for(int i=0; i<5; ++i){
 		t0=now_sec();
@@ -92,7 +88,6 @@ int main(int argc, char **argv)
                 t0=now_sec();
                 vicini=avx_CalcolaVicini(d, 0, n, query, k);
 
-                qsort(vicini, k, sizeof(Campione), compara_camp);
                 t1=now_sec();
                 double exec=t1-t0;
                 avg+=exec;
@@ -101,11 +96,11 @@ int main(int argc, char **argv)
         printf("Tempo di esecuzione migliore %8.8fs, medio %8.8fs\n", best, avg/5);
 
         printf("\n---Esecuzione thread---\n");
-	avg=0; best=10000;
+		avg=0; best=10000;
 	for(int i=0; i<5; ++i){
 		t0=now_sec();
 
-        	vicini=thread_CalcolaVicini(el, n, query, k, omp_get_max_threads());
+        vicini=thread_CalcolaVicini(el, n, query, k, omp_get_max_threads());
 		t1=now_sec();
 		double exec=t1-t0;
 		avg+=exec;
@@ -144,23 +139,6 @@ int main(int argc, char **argv)
         printf("Tempo di esecuzione migliore %8.8fs, medio %8.8fs\n", best, avg/5);
 //	stampa_ViciniD(vicini, d);
 
-
-
-/*      printf("\n---Esecuzione OMP AVX---\n");
-        avg=0; best=1000;
-        for(int i=0; i<5; ++i){
-
-                t0=now_sec();
-                vicini.c= ompAVX_CalcolaVicini(d, query, k);
-                t1=now_sec();
-                double exec=t1-t0;
-                avg+=exec;
-                best = (best>exec) ? exec:best;
-        }
-        printf("Tempo di esecuzione migliore %8.8fs, medio %8.8fs\n", best, avg/5);
-//	stampa_ViciniD(vicini, d);
-
-*/
 	free(el); free(d.x); free(d.y); free(d.z); free(d.idx);
 	return 0;
 }
