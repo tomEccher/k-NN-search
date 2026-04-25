@@ -76,11 +76,11 @@ int main(int argc, char **argv)
 
     if(rank==0){
 
-	        el=(Elementi *) malloc(sizeof(Elementi)*n);
+	    el=(Elementi *) malloc(sizeof(Elementi)*n);
 		double t0=0, t1=0;
 
-	        init(el, n);
-	        stampa_query(query);
+	    init(el, n);
+	    stampa_query(query);
 
 		printf("=== ESECUZIONE LINEARE SU RANK === %d\n", rank);
 		for(int i=0; i<2; ++i){
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
 
     for(int i=0; i<5; ++i){
 
-	   t=now_sec();
+		t=now_sec();
 	    vicini=seq_CalcolaVicini(rec_buff, MPI_chunk_size, query, k);
 	    qsort(vicini, k, sizeof(Campione), compara_camp);	    
 	    
@@ -146,7 +146,6 @@ int main(int argc, char **argv)
 		    MPI_Gather(vicini, k, MPI_CAMPIONE, all_k.c, k, MPI_CAMPIONE, 0, MPI_COMM_WORLD);
 		    tgather=now_sec()-tgather;
 		    merge_P_lists(all_k.c, size, result.c);
-		  //  printf("Tempo di gather %8.4f\n", tgather);
 		    exec=now_sec()-t-tgather;
 		    avg+=exec;
 
@@ -160,8 +159,8 @@ int main(int argc, char **argv)
     }
 
     if(0==rank){
-//	   printf("Vicini da processo distribuito:\n");
-//                  stampa_Vicini(el, vicini);
+//	    printf("Vicini da processo distribuito:\n");
+    	stampa_Vicini(el, vicini, k);
 
 	    printf("ESECUZIONE LINEARE: BEST %8.4fs, MEDIO %8.4fS\n", best, avg/5);
 	    best=10000; avg=0;
@@ -174,37 +173,32 @@ int main(int argc, char **argv)
 //	    fprintf(stderr, "Esecuzione numero %d del processo %d\n", i, rank);
 	    t=now_sec();
     	vicini=thread_CalcolaVicini(rec_buff, MPI_chunk_size, query, k, num_thread);
-            qsort(vicini, k, sizeof(Campione), compara_camp);
+            
+		 MPI_Barrier(MPI_COMM_WORLD);
 
 
-            MPI_Barrier(MPI_COMM_WORLD);
-
-
-            if(rank==0){
-                    Max_Heap all_k=createHeap(k*size);
-                    Max_Heap result=createHeap(k);
+        if(rank==0){
+            Max_Heap all_k=createHeap(k*size);
+            Max_Heap result=createHeap(k);
 
 		    tgather=now_sec();
-                    MPI_Gather(vicini, k, MPI_CAMPIONE, all_k.c, k, MPI_CAMPIONE, 0, MPI_COMM_WORLD);
+            MPI_Gather(vicini, k, MPI_CAMPIONE, all_k.c, k, MPI_CAMPIONE, 0, MPI_COMM_WORLD);
 		    tgather=now_sec()-tgather;
-                    merge_P_lists(all_k.c, size, result.c);
-//		    printf("Tempo di gather %8.4f\n", tgather);
-                    exec=now_sec()-t-tgather;
-                    avg+=exec;
-
-                    best = (best>exec) ? exec : best;
-
-                    result.dim=k;
+            merge_P_lists(all_k.c, size, result.c);
+            exec=now_sec()-t-tgather;
+            avg+=exec;
+            best = (best>exec) ? exec : best;
+            result.dim=k;
 		    vicini=result.c;
             }else{
-                    MPI_Gather(vicini, k, MPI_CAMPIONE, NULL, k, MPI_CAMPIONE, 0, MPI_COMM_WORLD);
+            	MPI_Gather(vicini, k, MPI_CAMPIONE, NULL, k, MPI_CAMPIONE, 0, MPI_COMM_WORLD);
             }
     }
     
 
     if(0==rank){
 //           printf("Vicini da processo distribuito:\n");
-//                  stampa_Vicini(el, vicini);
+		stampa_Vicini(el, vicini, k);
 
             printf("ESECUZIONE THREAD: BEST %8.4fs, MEDIO %8.4fS\n", best, avg/5);
             best=10000; avg=0;
@@ -213,30 +207,26 @@ int main(int argc, char **argv)
 
 
     for(int i=0; i<5; ++i){
-            t=now_sec();
+        t=now_sec();
         vicini=omp_CalcolaVicini(rec_buff, MPI_chunk_size, query, k);
-            qsort(vicini, k, sizeof(Campione), compara_camp);
+        
+		MPI_Barrier(MPI_COMM_WORLD);
 
-
-            MPI_Barrier(MPI_COMM_WORLD);
-
-
-            if(rank==0){
-                    Max_Heap all_k=createHeap(k*size);
-                    Max_Heap result=createHeap(k);
+		if(rank==0){
+            Max_Heap all_k=createHeap(k*size);
+            Max_Heap result=createHeap(k);
 
 		    tgather=now_sec();
-                    MPI_Gather(vicini, k, MPI_CAMPIONE, all_k.c, k, MPI_CAMPIONE, 0, MPI_COMM_WORLD);
+            MPI_Gather(vicini, k, MPI_CAMPIONE, all_k.c, k, MPI_CAMPIONE, 0, MPI_COMM_WORLD);
 		    tgather=now_sec()-tgather;
-                    merge_P_lists(all_k.c, size, result.c);
-//		    printf("Tempo di gather %8.4f\n", tgather);
-                    exec=now_sec()-t-tgather;
-                    avg+=exec;
+            merge_P_lists(all_k.c, size, result.c);
+            exec=now_sec()-t-tgather;
+            avg+=exec;
 
-                    best = (best>exec) ? exec : best;
+            best = (best>exec) ? exec : best;
 
-                    result.dim=k;
-                    vicini=result.c;
+            result.dim=k;
+            vicini=result.c;
             }else{
                     MPI_Gather(vicini, k, MPI_CAMPIONE, NULL, k, MPI_CAMPIONE, 0, MPI_COMM_WORLD);
             }
@@ -244,7 +234,7 @@ int main(int argc, char **argv)
 
     if(0==rank){
 //           printf("Vicini da processo distribuito:\n");
-//                  stampa_Vicini(el, vicini);
+		 stampa_Vicini(el, vicini, k);
 
             printf("ESECUZIONE OMP: BEST %8.4fs, MEDIO %8.4fS\n", best, avg/5);
             printf("\n\n");
