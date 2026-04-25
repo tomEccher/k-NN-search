@@ -3,8 +3,8 @@
 
 
 typedef struct{
-    float d2;
-    size_t idx;
+    float d2;		//distance from query point
+    size_t idx;		//index of the element in the dataset
 
 }Campione;
 
@@ -46,7 +46,6 @@ static inline int heap_full(Max_Heap *m){
 }
 
 
-/* swap */
 static inline void heap_swap(Campione *a, Campione *b) {
     Campione t = *a; *a = *b; *b = t;
 }
@@ -56,7 +55,7 @@ static inline int compara_mag(Campione c1, Campione c2){
 	return c1.idx > c2.idx;
 }
 
-/* risale finché la proprietà di heap è rispettata */
+//reoder the heap starting from child position
 static inline void heap_sift_up(Max_Heap *m, int i) {
 	Campione tmp=m->c[i];
     while (i > 0) {
@@ -68,7 +67,7 @@ static inline void heap_sift_up(Max_Heap *m, int i) {
     m->c[i]=tmp;
 }
 
-/* scende per ripristinare la proprietà di heap */
+//reoder the heap starting from father position
 static inline void heap_sift_down(Max_Heap *m, int i) {
     int n = m->dim;
     while (1) {
