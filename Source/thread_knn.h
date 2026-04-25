@@ -13,7 +13,7 @@ int n_thread;
 Database d;
 int MPI_rank;
 
-
+//function for qsort ordering
 static int compara_camp(const void *a, const void* b){
     Campione c1=*(Campione*)a;
     Campione c2=*(Campione*)b;
@@ -30,9 +30,6 @@ void* thread_work(void* rank){
     Campione tmp;
 
     out[r]=createHeap(k);
-//    fprintf(stderr, "Thread %d, tempo inizio %8.4f\n", r, now_sec());
-
-//   fprintf(stderr, "Thread %d su %d del processo %d\n", r, n_thread, MPI_rank);
 
     size_t start=r*chunk_size;
     size_t stop=0;
@@ -43,11 +40,9 @@ void* thread_work(void* rank){
         stop=start+chunk_size;
     }
 
-//    fprintf(stderr, "Start %d, stop %d\n", start, stop);
-
 	float threshold;
 	size_t i=start;
-
+//fill the heap with k values
 	for(; i<start+k; ++i){
 	        volatile float dx, dy, dz;
 	        dx=pts[i].x-q.x;
@@ -55,10 +50,10 @@ void* thread_work(void* rank){
 	        dz=pts[i].z-q.z;
 
         	tmp.d2=dx*dx+dy*dy+dz*dz;
-		tmp.idx=pts[i].idx;
-                heap_push(&out[r], tmp);
+			tmp.idx=pts[i].idx;
+            heap_push(&out[r], tmp);
 	}
-
+//set thre threshold 
 	threshold=out[r].c[0].d2;
     for(; i<stop; ++i){
         volatile float dx, dy, dz;
@@ -77,8 +72,6 @@ void* thread_work(void* rank){
     }
 
     qsort(out[r].c, k, sizeof(Campione), compara_camp);
-	
- //   fprintf(stderr, "Thread %d, tempo fine %8.4f", r, now_sec());
 
     return NULL;
 
@@ -88,8 +81,7 @@ void* thread_AVX(void *rank){
 	int r=*(int*)rank;
 
 	size_t start=r*chunk_size;
-       	size_t stop=0;
-//	printf("%d start %d stop %d\n", r, start, stop);
+    size_t stop=0;
 
 	if(r==n_thread-1){
 		stop=d.n;
@@ -98,10 +90,6 @@ void* thread_AVX(void *rank){
 	}
 
 	out[r]=createHeap(k);
-
-	
-//	printf("%d start %d stop %d\n", r, start, stop);
-	
 
 	 Campione tmp;
     __m256 QX = _mm256_set1_ps(q.x);
@@ -112,7 +100,6 @@ void* thread_AVX(void *rank){
     posix_memalign((void**)&d2buff, 64, sizeof(float)*8);
     float threshold;
 
-//      printf("Start %d, stop %d\n", start, stop);
 
     for(size_t i=start; i<start+k; ++i){
             volatile float dx=d.x[i]-q.x;
@@ -124,7 +111,7 @@ void* thread_AVX(void *rank){
             heap_push(&out[r], tmp);
     }
 
-        threshold=out[r].c[0].d2;
+    threshold=out[r].c[0].d2;
     size_t i=start;
     for(; i+7<stop; i+=8){
 	    if(i+16<stop){
@@ -132,23 +119,18 @@ void* thread_AVX(void *rank){
         __builtin_prefetch(&d.y[i+16], 0, 1);
         __builtin_prefetch(&d.z[i+16], 0, 1);
 	    } 
- 
-
 
         __m256 X = _mm256_loadu_ps(&d.x[i]);
         __m256 Y = _mm256_loadu_ps(&d.y[i]);
         __m256 Z = _mm256_loadu_ps(&d.z[i]);
 
-
-
         __m256 DX = _mm256_sub_ps(X, QX);
         __m256 DY = _mm256_sub_ps(Y, QY);
         __m256 DZ = _mm256_sub_ps(Z, QZ);
 
-	        __m256 D2 = _mm256_fmadd_ps(DZ, DZ, _mm256_fmadd_ps(DY, DY, _mm256_mul_ps(DX, DX)));
+	    __m256 D2 = _mm256_fmadd_ps(DZ, DZ, _mm256_fmadd_ps(DY, DY, _mm256_mul_ps(DX, DX)));
 
         _mm256_store_ps(d2buff, D2);
-
 
         for(int l=0; l<8; l++){
                 if(d2buff[l]<threshold){
@@ -163,8 +145,6 @@ void* thread_AVX(void *rank){
     }
 
 
-
-    // Coda scalare^M
     for (; i < stop; ++i) {
         volatile float dx = d.x[i] - q.x;
         volatile float dy = d.y[i] - q.y;
@@ -181,7 +161,6 @@ void* thread_AVX(void *rank){
                 threshold=heap_maxd2(out[r]);
         }
     }
-
 
 	qsort(out[r].c, k, sizeof(Campione), compara_camp);
 	return NULL;
@@ -222,7 +201,6 @@ void merge_P_lists(Campione *all, int P, Campione *out){
 
 Campione *threadAVX_CalcolaVicini(Database database, Elementi query, int k, int n_th){
 	
-//	printf("chiamata eseguita\n");
 	k=k;
 	q=query;
 	d=database;
@@ -232,16 +210,12 @@ Campione *threadAVX_CalcolaVicini(Database database, Elementi query, int k, int 
 	out=(Max_Heap*)malloc(sizeof(Max_Heap)*n_thread);
 	chunk_size=d.n/n_thread;
 	last_chunk_size=d.n-chunk_size*(n_thread-1);
-//	fprintf(stderr, "Esecuzione processo %d con %d thread\n", mr, n_thread);
-
-
-//	printf("Chunk size %d, last chunk %d\n", chunk_size, last_chunk_size);
 
 	int *par=(int *)malloc(sizeof(int)*n_thread);
 	for(int i=0; i<n_thread; ++i){
 		par[i]=i;
 		pthread_create(&tID[i], NULL, thread_AVX, (void*)&par[i]);
-		//printf("Lanciato thread numero %d\n", par[i]);
+
 	}
 
 	for(int i=0; i<n_thread; i++){
@@ -268,7 +242,6 @@ Campione *threadAVX_CalcolaVicini(Database database, Elementi query, int k, int 
 }
 
 
-
 Campione* thread_CalcolaVicini(Elementi *el, size_t n, Elementi query, int k, int n_th){
 
 
@@ -282,12 +255,6 @@ Campione* thread_CalcolaVicini(Elementi *el, size_t n, Elementi query, int k, in
 
     chunk_size=n/n_thread;
     last_chunk_size=n-chunk_size*(n_thread-1);
-
-//    printf("Esecuzione del processo %d con %d thread\n", r, n_th);
-
-
- //   printf("Chunk size %d, last chunk size %d\n", chunk_size, last_chunk_size);
-
 
 	int *par=(int *)malloc(sizeof(int)*n_thread);
     for(int i=0; i< n_thread; i++){
