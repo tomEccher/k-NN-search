@@ -79,12 +79,11 @@ void stampa_ViciniD(Campione *c, Database d, int k){
 }
 
 
-
-
 Campione* avx_CalcolaVicini(Database d, size_t start, size_t stop, Elementi query, int k){
 
     Max_Heap m=createHeap(k);
-    Campione tmp;
+    Campione tmp;
+
     __m256 QX = _mm256_set1_ps(query.x);
     __m256 QY = _mm256_set1_ps(query.y);
     __m256 QZ = _mm256_set1_ps(query.z);
@@ -92,8 +91,6 @@ Campione* avx_CalcolaVicini(Database d, size_t start, size_t stop, Elementi quer
     float *d2buff;
     posix_memalign((void**)&d2buff, 64, sizeof(float)*8);
     float threshold;
-	
-//	printf("Start %d, stop %d\n", start, stop);
 
     for(size_t i=start; i<start+k; ++i){
 	    volatile float dx=d.x[i]-query.x;
@@ -117,8 +114,6 @@ Campione* avx_CalcolaVicini(Database d, size_t start, size_t stop, Elementi quer
         __m256 Y = _mm256_load_ps(&d.y[i]);
         __m256 Z = _mm256_load_ps(&d.z[i]);
 
-
-
         __m256 DX = _mm256_sub_ps(X, QX);
         __m256 DY = _mm256_sub_ps(Y, QY);
         __m256 DZ = _mm256_sub_ps(Z, QZ);
@@ -129,41 +124,37 @@ Campione* avx_CalcolaVicini(Database d, size_t start, size_t stop, Elementi quer
 
 
         for(int l=0; l<8; l++){
-		if(d2buff[l]<threshold){
+			if(d2buff[l]<threshold){
 
 	            Campione cp;
         	    cp.d2=d2buff[l];
 	            cp.idx=d.idx[i+l];
         	    heap_push(&m, cp);
-		    threshold=heap_maxd2(m);
-		}
+		    	threshold=heap_maxd2(m);
+			}
         }
     }
 
 
-
-    // Coda scalare
     for (; i < stop; ++i) {
         volatile float dx = d.x[i] - query.x;
         volatile float dy = d.y[i] - query.y;
         volatile float dz = d.z[i] - query.z;
 
-	volatile float d2=dx*dx+dy*dy+dz*dz;
+		volatile float d2=dx*dx+dy*dy+dz*dz;
 
-	if(d2<threshold){
+		if(d2<threshold){
 
-	        Campione cp;
-		cp.idx=d.idx[i];
-		cp.d2=d2;
-	        heap_push(&m, cp);
-		threshold=heap_maxd2(m);
-	}
+	    	Campione cp;
+			cp.idx=d.idx[i];
+			cp.d2=d2;
+	    	heap_push(&m, cp);
+			threshold=heap_maxd2(m);
+		}
     }
 
     return m.c;
 
-
-   // printf("%d", m->c[0].d2);
 
 }
 
