@@ -9,8 +9,6 @@ Campione* omp_CalcolaVicini(Elementi *e, size_t n, Elementi query, int k){
 
 	Max_Heap *out=(Max_Heap*)malloc(sizeof(Max_Heap)*num_threads);
 
-//	printf("Numero di thread OMP %d\n", num_threads);
-
 	for(int i=0; i<num_threads; ++i){
 		out[i]=createHeap(k);
 	}
@@ -20,7 +18,6 @@ Campione* omp_CalcolaVicini(Elementi *e, size_t n, Elementi query, int k){
 	#pragma omp parallel
 	{
 		int id=omp_get_thread_num();
-//		printf("Id lavoro %d\n", id);
 		Max_Heap *local=&out[id];
 		Campione tmp;
 		float dMAX=0;
@@ -42,11 +39,11 @@ Campione* omp_CalcolaVicini(Elementi *e, size_t n, Elementi query, int k){
 		#pragma omp for schedule(static, chunk)
 		for(size_t i=k; i<n; ++i){
 
-			__builtin_prefetch(&e[i+16], 0, 1);
+			//__builtin_prefetch(&e[i+16], 0, 1);
 
 			float dx=e[i].x-query.x;
-                        float dy=e[i].y-query.y;
-                        float dz=e[i].z-query.z;
+            float dy=e[i].y-query.y;
+            float dz=e[i].z-query.z;
 			
 			float d2=dx*dx+dy*dy+dz*dz;
 
