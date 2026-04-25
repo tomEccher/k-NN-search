@@ -2,12 +2,10 @@
 #define MIN_HEAP_H_INCLUDED
 
 typedef struct{
-    Campione val;
-    int r;
-    int pos;
+    Campione val; 	//campione from p lists
+    int r; 			//number of the lists
+    int pos;		//position of campione in list number 'r'
 }Node;
-
-
 
 
 typedef struct{
@@ -35,8 +33,6 @@ void free_mHeap(Min_Heap *m){
 }
 
 
-
-/* swap */
 static inline void node_swap(Node *a, Node *b) {
     Node t = *a; *a = *b; *b = t;
 }
@@ -46,7 +42,7 @@ static inline int compara_min(Node n1, Node n2){
 	   return n1.val.idx < n2.val.idx;
 }
 
-/* risale finché la proprietà di heap è rispettata */
+//reorder the heap starting from child position
 static void node_sift_up(Min_Heap *m, int i) {
     while (i > 0) {
         int p = (i - 1) >> 1;
@@ -56,13 +52,13 @@ static void node_sift_up(Min_Heap *m, int i) {
     }
 }
 
-/* scende per ripristinare la proprietà di heap */
+//reorder the heap starting from father position
 static void node_sift_down(Min_Heap *m, int i) {
     int n = m->dim;
     while (1) {
-        int l = (i << 1) + 1;
-        int r = l + 1;
-        int g = i;
+        int l = (i << 1) + 1;		//firts child
+        int r = l + 1;				//second child
+        int g = i;					//father
         if (l < n && compara_min(m->n[l], m->n[g])) g = l;
         if (r < n && compara_min(m->n[r], m->n[g])) g = r;
         if (g == i) break;
@@ -87,15 +83,6 @@ void node_push(Min_Heap *m, Node nd){
         m->dim++;
     }
 }
-
-
-
-
-
-
-
-
-
 
 
 #endif // MIN_HEAP_H_INCLUDED
