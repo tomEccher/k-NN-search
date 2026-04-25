@@ -71,22 +71,22 @@ int main(int argc, char **argv)
 	        stampa_query(query);
 		printf("\n===== ESECUZIONI MEMORIA CONDIVISA ======\n");
 
-	        printf("\n---Esecuzione avx---\n");
+	    printf("\n---Esecuzione avx---\n");
 		t0=now_sec();
-	        vicini=avx_CalcolaVicini(d, 0, n, query, k);
+	    vicini=avx_CalcolaVicini(d, 0, n, query, k);
 		qsort(vicini, k, sizeof(Campione), compara_camp);
 		t1=now_sec();
-	        stampa_ViciniD( vicini, d, k);
+	    stampa_ViciniD( vicini, d, k);
 		printf("Tempo di esecuzione con AVX prefetch %8.4fs\n", t1-t0);
 
 
-                printf("\n---Esecuzione Thread + avx---\n");
-                t0=now_sec();
-                vicini=threadAVX_CalcolaVicini(d, query, k, num_thread);
-                qsort(vicini, k, sizeof(Campione), compara_camp);
-                t1=now_sec();
-                stampa_ViciniD( vicini, d, k);
-                printf("Tempo di esecuzione con thread AVX %8.4fs\n", t1-t0);
+        printf("\n---Esecuzione Thread + avx---\n");
+        t0=now_sec();
+        vicini=threadAVX_CalcolaVicini(d, query, k, num_thread);
+        qsort(vicini, k, sizeof(Campione), compara_camp);
+        t1=now_sec();
+        stampa_ViciniD( vicini, d, k);
+        printf("Tempo di esecuzione con thread AVX %8.4fs\n", t1-t0);
 
 
 		printf("\n===== ESECUZIONI MEMORIA DISTRIBUITA =====\n");
@@ -107,7 +107,6 @@ int main(int argc, char **argv)
             MPI_Scatter(NULL, MPI_chunk_size, MPI_FLOAT, local_d.x, MPI_chunk_size, MPI_FLOAT, 0, MPI_COMM_WORLD);
     }
 
-//    MPI_Barrier(MPI_COMM_WORLD);
 
     if(0==rank){
 	    MPI_Scatter(d.y, MPI_chunk_size, MPI_FLOAT, local_d.y, MPI_chunk_size, MPI_FLOAT, 0, MPI_COMM_WORLD);
@@ -115,7 +114,6 @@ int main(int argc, char **argv)
 	    MPI_Scatter(NULL, MPI_chunk_size, MPI_FLOAT, local_d.y, MPI_chunk_size, MPI_FLOAT, 0, MPI_COMM_WORLD);
    }
 
-//    MPI_Barrier(MPI_COMM_WORLD);
 
 
     if(0==rank){
@@ -124,7 +122,6 @@ int main(int argc, char **argv)
             MPI_Scatter(NULL, MPI_chunk_size, MPI_FLOAT, local_d.z, MPI_chunk_size, MPI_FLOAT, 0, MPI_COMM_WORLD);
    }
 
-//    MPI_Barrier(MPI_COMM_WORLD);
 
     if(0==rank){
 	    MPI_Scatter(d.idx, MPI_chunk_size, MPI_UNSIGNED_LONG, local_d.idx, MPI_chunk_size, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
@@ -173,8 +170,8 @@ int main(int argc, char **argv)
 	}
 
 	if(0==rank){
-//		stampa_ViciniD(result.c, d, k);
-	       	printf("Tempo di esecuzione AVX migliore %8.4f, medio %8.4f\n", best, avg/5);
+		stampa_ViciniD(result.c, d, k);
+	    printf("Tempo di esecuzione AVX migliore %8.4f, medio %8.4f\n", best, avg/5);
 		avg=0; best=1000;
 		printf("====== Esecuzione thread + AVX\n");
 	}
@@ -182,38 +179,30 @@ int main(int argc, char **argv)
 	for(int i=0; i<5; ++i){
 
 
-                t=now_sec();
+            t=now_sec();
             local_k=threadAVX_CalcolaVicini(local_d, query, k, num_thread);
-            qsort(local_k, k, sizeof(Campione), compara_camp);
+            MPI_Barrier(MPI_COMM_WORLD);
 
-             MPI_Barrier(MPI_COMM_WORLD);
-
-             if(0==rank){
-                     Campione *all_k=(Campione*)malloc(sizeof(Campione)*k*size);
-		     tgather=now_sec();
-                     MPI_Gather(local_k, k, MPI_CAMPIONE, all_k, k, MPI_CAMPIONE, 0, MPI_COMM_WORLD);
-		     tgather=now_sec()-tgather;
-                     result=createHeap(k);
-		     double tmerge=now_sec();
-                     merge_P_lists(all_k, size, result.c);
-		     tmerge=now_sec()-tmerge;
-                     exec=now_sec()-t-tgather;
-                     avg+=exec;
-                     best=(best>exec) ? exec:best;
-                     result.dim=k;
-
-
-		     
-
-
-                     //stampa_ViciniD(result, d);
+            if(0==rank){
+                Campione *all_k=(Campione*)malloc(sizeof(Campione)*k*size);
+		     	tgather=now_sec();
+                MPI_Gather(local_k, k, MPI_CAMPIONE, all_k, k, MPI_CAMPIONE, 0, MPI_COMM_WORLD);
+		     	tgather=now_sec()-tgather;
+                result=createHeap(k);
+		     	double tmerge=now_sec();
+                merge_P_lists(all_k, size, result.c);
+		     	tmerge=now_sec()-tmerge;
+            	exec=now_sec()-t-tgather;
+                avg+=exec;
+                best=(best>exec) ? exec:best;
+                result.dim=k;
              }else{
                      MPI_Gather(local_k, k, MPI_CAMPIONE, NULL, k, MPI_CAMPIONE, 0, MPI_COMM_WORLD);
              }
         }
 
         if(0==rank){
-//		stampa_ViciniD(result.c, d, k);
+		stampa_ViciniD(result.c, d, k);
 
                 printf("Tempo di esecuzione thread+AVX migliore %8.4f, medio %8.4f\n", best, avg/5);
         }
