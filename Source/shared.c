@@ -94,7 +94,7 @@ int main(int argc, char **argv)
         avg+=exec;
         best = (best>exec) ? exec: best;
     }
-	stampa_ViciniD(d, vicini.c, k);
+	stampa_ViciniD(vicini.c, d, k);
     printf("Tempo di esecuzione migliore %8.8fs, medio %8.8fs\n", best, avg/5);
 
     printf("\n---Esecuzione thread---\n");
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
         best = (best>exec) ? exec:best;
     }
         printf("Tempo di esecuzione migliore %8.8fs, medio %8.8fs\n", best, avg/5);
-	stampa_ViciniD(d, vicini.c, k);
+	stampa_ViciniD(vicini.c, d, k);
 
 	free(el); free(d.x); free(d.y); free(d.z); free(d.idx);
 	return 0;
