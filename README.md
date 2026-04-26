@@ -13,4 +13,4 @@ make aosMake: mpicc -O3 -mavx2 -mfma -fopenmpi MPI_AoS.c -o MPI_AoS.o
 make saoMake: mpicc -O3 -mavx2 -mfma -fopenmpi MPI_AoS.c -o MPI_SoA.o
   produce an executable where AVX and AVX+thread algorithms are test in a distributed memory sistem.
 
-In PBS folder are aviable the .pbs files used to generate the reported results.
+Change directory to PBS folder to run all the aviable .pbs files used to generate the reported results.
