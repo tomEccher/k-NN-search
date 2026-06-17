@@ -48,9 +48,9 @@ Campione* omp_CalcolaVicini(Elementi *e, size_t n, Elementi query, int k){
 			float d2=dx*dx+dy*dy+dz*dz;
 
 			if(d2<=dMAX){
-	                        tmp.d2=d2;
-        	                tmp.idx=e[i].idx;
-	                        heap_push(local, tmp);
+	        	tmp.d2=d2;
+        	    tmp.idx=e[i].idx;
+	            heap_push(local, tmp);
 				dMAX=local->c[0].d2;
 			}
 		}
@@ -140,7 +140,7 @@ Campione* ompAVX_CalcolaVicini(Database d, Elementi query, int k){
 
 			#pragma omp for schedule (static)
 			for(int j=0; j<8; ++j){
-				if(d2buff[j]<dMAX){
+				if(d2buff[j]<=dMAX){
 					tmp.d2=d2buff[j];
 					tmp.idx=d.idx[i+j];
 					heap_push(local, tmp);
@@ -156,7 +156,7 @@ Campione* ompAVX_CalcolaVicini(Database d, Elementi query, int k){
 
 			volatile float d2=dx*dx+dy*dy+dz*dz;
 
-			if(d2<dMAX){
+			if(d2<=dMAX){
 				tmp.idx=d.idx[i];
 				tmp.d2=d2;
 				heap_push(local, tmp);
