@@ -124,7 +124,7 @@ Campione* avx_CalcolaVicini(Database d, size_t start, size_t stop, Elementi quer
 
 
         for(int l=0; l<8; l++){
-			if(d2buff[l]<threshold){
+			if(d2buff[l]<=threshold){
 
 	            Campione cp;
         	    cp.d2=d2buff[l];
@@ -143,7 +143,7 @@ Campione* avx_CalcolaVicini(Database d, size_t start, size_t stop, Elementi quer
 
 		volatile float d2=dx*dx+dy*dy+dz*dz;
 
-		if(d2<threshold){
+		if(d2<=threshold){
 
 	    	Campione cp;
 			cp.idx=d.idx[i];
