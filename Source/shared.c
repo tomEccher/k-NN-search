@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 	if(4==argc){
 		k=strtol(argv[1], NULL, 10);
     	n_th=strtol(argv[2], NULL, 10);
-		n=strtol(argv[3], NULL, 10)*n_th;
+		n=strtol(argv[3], NULL, 10);
 		omp_set_num_threads(n_th);
 	}
 	if(argc<3){
