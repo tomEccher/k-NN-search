@@ -29,7 +29,8 @@ Campione* seq_CalcolaVicini(Elementi *e, size_t n, Elementi query, int k){
         volatile float dz=e[i].z-query.z;
 
         float d2=dx*dx+dy*dy+dz*dz;
-	if(d2<treshold){
+
+	if(d2<=treshold){
 		tmp.d2=d2;
 		tmp.idx=e[i].idx;
         	heap_push(&m, tmp);
