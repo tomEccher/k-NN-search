@@ -63,7 +63,7 @@ void* thread_work(void* rank){
 
         float d2=dx*dx+dy*dy+dz*dz;
 
-	if(d2<threshold){
+	if(d2<=threshold){
 		tmp.d2=d2;
 	        tmp.idx=pts[i].idx;
         	heap_push(&out[r], tmp);
@@ -133,7 +133,7 @@ void* thread_AVX(void *rank){
         _mm256_store_ps(d2buff, D2);
 
         for(int l=0; l<8; l++){
-                if(d2buff[l]<threshold){
+                if(d2buff[l]<=threshold){
 
                     Campione cp;
                     cp.d2=d2buff[l];
@@ -152,7 +152,7 @@ void* thread_AVX(void *rank){
 
         volatile float d2=dx*dx+dy*dy+dz*dz;
 
-        if(d2<threshold){
+        if(d2<=threshold){
 
                 Campione cp;
                 cp.idx=d.idx[i];
