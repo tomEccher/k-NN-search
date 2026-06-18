@@ -3,7 +3,7 @@ Implementation of distributed k-NN search
 
 All the files needed by the compiler are aviable in the "Source" folder.
 In the MAKEFILE there 3 different policy to compile three different executables.
-Note that the code was tested only on unitn HPC server and ment to be reproduced there for accademic reason.
+Note that the code was tested only on unitn HPC server and meant to be reproduced there for accademic reason.
 
 make sharedMake: gcc -O3 -mavx2 -mfma -fopenmpi shared.c -o shared.o
   produce an executable where all the algorithms are tested in a shared memory sistem.
